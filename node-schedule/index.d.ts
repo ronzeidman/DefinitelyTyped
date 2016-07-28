@@ -63,6 +63,16 @@ export interface RecurrenceRule {
      */
     year?: number;
 }
+export interface RecurrenceRuleConstructor {
+    new (year?: number,
+         month?: number,
+         date?: number,
+         dayOfWeek?: number,
+         hour?: number,
+         minute?:number,
+         second?:number): RecurrenceRule;
+}
+export const RecurrenceRule: RecurrenceRuleConstructor;
 
 /**
  * Range.
@@ -94,6 +104,7 @@ export declare class Range {
  *
  * @class
  */
+export type SupportedJobEvents = 'run'|'scheduled'|'canceled';
 export declare class Job {
     /**
      * Constructor.
@@ -120,13 +131,24 @@ export declare class Job {
      * @param {string}    eventName The event name.
      * @param {Function}  handler   The function to execute when the event is triggered.
      */
-    on(eventName: string, handler: Function): void;
+    addListener(event: SupportedEvents, listener: Function): this;
+    //full implementation of EventEmitter is supported
+    on(event: SupportedEvents, listener: Function): this;
+    once(event: SupportedEvents, listener: Function): this;
+    removeListener(event: SupportedEvents, listener: Function): this;
+    removeAllListeners(event?: SupportedEvents): this;
+    setMaxListeners(n: number): this;
+    getMaxListeners(): number;
+    listeners(event: SupportedEvents): Function[];
+    emit(event: SupportedEvents, ...args: any[]): boolean;
+    listenerCount(type: string): number;
 
     /**
      *
      * @public
      */
     schedule(date: Date): void;
+    cancel(): boolean;
 }
 
 /**
@@ -192,4 +214,4 @@ export declare function cancelJob(job: Job): boolean;
  * @param {RecurrenceRule} rule The rule.
  * @param {Function} callback The callback.
  */
-export declare function scheduleJob(rule: RecurrenceRule | Date | string, callback: Function): void;
+export declare function scheduleJob(rule: RecurrenceRule | Date | string, callback: Function): Job;
